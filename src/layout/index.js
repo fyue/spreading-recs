@@ -14,20 +14,28 @@ class Layout extends React.Component {
   }
 
   componentDidMount() {
-    let STEP = 10;
+    let STEP = 1;
 
-    let Radius = 400;
+    let Radius = 500;
     let Ox = 500;
-    let Oy = 800;
+    let Oy = 600;
 
-    const multiArr = [
-      ['', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', ''],
+    const arr = [
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
     ];
 
-    const arr = ['', '', '', '', '', '', '', '', '', '', '', ''];
+    // const arr = ['', '', '', '', '', '', '', '', '', '', '', ''];
     let initX = 1000;
 
     class Rec {
@@ -52,34 +60,79 @@ class Layout extends React.Component {
       context.fillStyle = '#00ff00';
 
       // 构造对象
-      arr.forEach((item, index) => {
-        arr[index] = new Rec(initX, index * 100);
+      arr.forEach((_item, index) => {
+        _item.forEach((item, idx) => {
+          arr[index][idx] = new Rec(1000 - index * 100, idx * 100);
+        });
+        // arr[index] = new Rec(initX, index * 100);
       });
 
       // 初始渲染
-      arr.forEach((item) => {
-        context.fillRect(item.X, item.Y, 80, 80);
+      arr.forEach((_item, index) => {
+        _item.forEach((item, idx) => {
+          context.fillRect(item.X, item.Y, 80, 80);
+        });
       });
 
       // 向左循环轮播
       setInterval(() => {
         // 清除已绘的当前位置的矩形
-        arr.forEach((item) => {
-          context.clearRect(item.X, item.Y, 80, 80);
+        arr.forEach((_item, index) => {
+          _item.forEach((item, idx) => {
+            context.clearRect(item.X, item.Y, 80, 80);
+          });
         });
 
 
-        arr.forEach((item) => {
+        arr.forEach((_item, index) => {
+          _item.forEach((item, idx) => {
+            const {X, Y, initY} = item;
+
+            let itemX = X === -80 ? 1080 : X - STEP;
+            let itemY = Y;
+            /*if (X >= Ox - Radius && X <= Ox + Radius && Y <= Oy && Y > Oy - Radius) { // 第一、二象限
+             itemY = Oy - sqrt(Radius ** 2 - (X - Ox) ** 2);
+             } else if (X >= Ox - Radius && X <= Ox + Radius && Y <= Oy + Radius && Y > Oy ) { // 第三、四象限
+             itemY = Oy + sqrt(Radius ** 2 - (X - Ox) ** 2);
+             }*/
+
+            if ((X > Ox) && ((X - Ox) ** 2 + (Y - Oy) ** 2 <= Radius ** 2)) {
+              if (Y <= Oy) {
+                itemY = Oy - sqrt(Radius ** 2 - (X - Ox) ** 2);
+              } else if (Y > Oy) {
+                itemY = Oy + sqrt(Radius ** 2 - (X - Ox) ** 2);
+              }
+            }
+            if ((X >= (Ox - Radius) && X <= Ox) && (Y >= (Oy - Radius) && Y <= (Oy + Radius))) {
+              if (Y <= Oy) {
+                let computeY = Oy - sqrt(Radius ** 2 - (X - Ox) ** 2);
+                itemY = initY > computeY ? computeY : initY;
+              } else {
+                let computeY = Oy + sqrt(Radius ** 2 - (X - Ox) ** 2);
+                itemY = initY < computeY ? computeY : initY;
+              }
+            }
+
+
+            item.changeX(parseInt(itemX)); // parseInt是必须的，解决清除绘画时有残余问题
+            item.changeY(parseInt(itemY)); // parseInt是必须的，解决清除绘画时有残余问题
+
+            // 重绘新位置的矩形
+            context.fillRect(item.X, item.Y, 80, 80);
+          });
+        });
+
+        /*arr.forEach((item) => {
           // 更新位置
           const {X, Y, initY} = item;
 
           let itemX = X === -80 ? 1080 : X - STEP;
           let itemY = Y;
-          /*if (X >= Ox - Radius && X <= Ox + Radius && Y <= Oy && Y > Oy - Radius) { // 第一、二象限
+          /!*if (X >= Ox - Radius && X <= Ox + Radius && Y <= Oy && Y > Oy - Radius) { // 第一、二象限
             itemY = Oy - sqrt(Radius ** 2 - (X - Ox) ** 2);
           } else if (X >= Ox - Radius && X <= Ox + Radius && Y <= Oy + Radius && Y > Oy ) { // 第三、四象限
             itemY = Oy + sqrt(Radius ** 2 - (X - Ox) ** 2);
-          }*/
+          }*!/
 
           if ((X > Ox) && ((X - Ox) ** 2 + (Y - Oy) ** 2 <= Radius ** 2)) {
             if (Y <= Oy) {
@@ -105,7 +158,7 @@ class Layout extends React.Component {
           // 重绘新位置的矩形
           context.fillRect(item.X, item.Y, 80, 80);
 
-        });
+        });*/
 
         // 绘制圆
         context.beginPath();
